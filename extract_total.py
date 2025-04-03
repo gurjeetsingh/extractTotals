@@ -1,5 +1,6 @@
 import re
 import PyPDF2
+import os
 
 def extract_invoice_total(pdf_path):
     try:
@@ -22,18 +23,20 @@ def extract_invoice_total(pdf_path):
         print(f"Error processing {pdf_path}: {e}")
         return None
 
-def extract_and_sum_totals(pdf_paths):
+def extract_and_sum_totals(directory):
     total_sum = 0.0
-    for pdf_path in pdf_paths:
-        total = extract_invoice_total(pdf_path)
-        if total is not None:
-            total_sum += total
-        else:
-            print(f"Total not found in {pdf_path}")
+    for file_name in os.listdir(directory):
+        if file_name.lower().endswith('.pdf'):
+            pdf_path = os.path.join(directory, file_name)
+            total = extract_invoice_total(pdf_path)
+            if total is not None:
+                total_sum += total
+            else:
+                print(f"Total not found in {pdf_path}")
     return total_sum
 
 # Example usage
 if __name__ == "__main__":
-    pdf_paths = ["invoice1.pdf", "invoice2.pdf", "invoice3.pdf"]  # Replace with your PDF file paths
-    total_sum = extract_and_sum_totals(pdf_paths)
+    directory = "."  # Replace with your directory path if needed
+    total_sum = extract_and_sum_totals(directory)
     print(f"Total Sum: ${total_sum:.2f}")
