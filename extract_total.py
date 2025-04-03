@@ -4,17 +4,21 @@ import os
 
 def extract_invoice_total(pdf_path):
     try:
-        # Open the PDF file
         with open(pdf_path, 'rb') as file:
             reader = PyPDF2.PdfReader(file)
             text = ""
             
             # Extract text from all pages
             for page in reader.pages:
-                text += page.extract_text()
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
             
-            # Search for the total after "Invoice Subtotal"
-            match = re.search(r"Invoice Subtotal\s*\$([0-9]+\.[0-9]{2})", text)
+            # Normalize spaces and line breaks
+            text = re.sub(r'\s+', ' ', text)
+            
+            # Improved regex pattern to be more flexible with spacing
+            match = re.search(r"Invoice subtotal\s*/?\s*Total partiel de la facture\s*\$([0-9]+\.[0-9]{2})", text, re.IGNORECASE)
             if match:
                 return float(match.group(1))
             else:
