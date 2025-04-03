@@ -15,14 +15,25 @@ def extract_invoice_total(pdf_path):
             # Search for the total after "Invoice Subtotal"
             match = re.search(r"Invoice Subtotal\s*\$([0-9]+\.[0-9]{2})", text)
             if match:
-                return f"${match.group(1)}"
+                return float(match.group(1))
             else:
-                return "Total not found."
+                return None
     except Exception as e:
-        return f"An error occurred: {e}"
+        print(f"Error processing {pdf_path}: {e}")
+        return None
+
+def extract_and_sum_totals(pdf_paths):
+    total_sum = 0.0
+    for pdf_path in pdf_paths:
+        total = extract_invoice_total(pdf_path)
+        if total is not None:
+            total_sum += total
+        else:
+            print(f"Total not found in {pdf_path}")
+    return total_sum
 
 # Example usage
 if __name__ == "__main__":
-    pdf_path = "invoice.pdf"  # Replace with the path to your PDF file
-    total = extract_invoice_total(pdf_path)
-    print(f"Extracted Total: {total}")
+    pdf_paths = ["invoice1.pdf", "invoice2.pdf", "invoice3.pdf"]  # Replace with your PDF file paths
+    total_sum = extract_and_sum_totals(pdf_paths)
+    print(f"Total Sum: ${total_sum:.2f}")
